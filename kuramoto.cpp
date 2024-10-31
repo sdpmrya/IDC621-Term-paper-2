@@ -3,10 +3,10 @@
 #include <fstream>
 #include <cmath>
 
-const int k = 200; //coupling strength
+const int k = 99.6; //coupling strength
 const int N = 10;
 const double pi = 3.141592653589793;
-const double dt = 0.0001;
+const double dt = 0.000001;
 
 struct Osc
 {
@@ -30,12 +30,12 @@ void theta_dot(Osc* oscillators) {
     for (int i = 0; i < N * N; i++) {
         double coupling_effect = 0.0;
         for (int j = 0; j < N * N; j++) {
-            if (i != j) { // Avoid self-interaction
+            if (i != j) { 
                 coupling_effect += sin(oscillators[j].past_phase - oscillators[i].past_phase);
             }
         }
-        coupling_effect *= (k / (N * N)); // Scale by coupling constant and number of oscillators
-        oscillators[i].omega = 0.5 + coupling_effect; // Update omega with coupling
+        coupling_effect *= (k / (N * N)); 
+        oscillators[i].omega = 0.5 + coupling_effect; 
     }
 }
 
@@ -57,16 +57,17 @@ int main(){
 
     std::ofstream outFile("Kuramoto_data.txt");
 
-    int tot_time = 1;
-    int num_steps = tot_time/dt;
+    int num_steps = 1.5e5;
 
     for (int i=0; i<num_steps; i++) {
         theta_dot(oscillators);
         new_phase(oscillators);
 
-        for (int j=0; j<N*N; j++) {
-            outFile << oscillators[j].curr_phase << " ";
-        } outFile << "\n";
+        if (i%100 == 0) {
+            for (int j=0; j<N*N; j++) {
+                outFile << oscillators[j].curr_phase << " ";
+            } outFile << "\n";
+        }
 
         reassign(oscillators);
     }
