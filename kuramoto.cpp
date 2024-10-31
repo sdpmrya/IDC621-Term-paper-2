@@ -3,10 +3,10 @@
 #include <fstream>
 #include <cmath>
 
-const int k = 10; //coupling strength
+const int k = 200; //coupling strength
 const int N = 10;
-const float pi = 3.141592653589793;
-const float dt = 0.0001;
+const double pi = 3.141592653589793;
+const double dt = 0.0001;
 
 struct Osc
 {
@@ -26,13 +26,16 @@ void initialize(Osc* oscillators){
     }
 }
 
-void theta_dot(Osc* oscillators){
-    for (int i=0; i<N*N; i++) {
-        float sum = 0.0;
-        for (int j=0; j<N*N; j++) {
-            sum += sin(oscillators[j].past_phase - oscillators[i].past_phase);
+void theta_dot(Osc* oscillators) {
+    for (int i = 0; i < N * N; i++) {
+        double coupling_effect = 0.0;
+        for (int j = 0; j < N * N; j++) {
+            if (i != j) { // Avoid self-interaction
+                coupling_effect += sin(oscillators[j].past_phase - oscillators[i].past_phase);
+            }
         }
-        oscillators[i].omega = oscillators[i].omega + (k/N*N)*sum;
+        coupling_effect *= (k / (N * N)); // Scale by coupling constant and number of oscillators
+        oscillators[i].omega = 0.5 + coupling_effect; // Update omega with coupling
     }
 }
 
